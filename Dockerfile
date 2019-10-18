@@ -13,9 +13,9 @@ EXPOSE 8448
 VOLUME ["/data"]
 
 # Git branch to build from
-ARG BV_SYN=release-v1.4.0
+ARG BV_SYN=release-v1.4.1
 ARG BV_TUR=master
-ARG TAG_SYN=v1.4.0
+ARG TAG_SYN=v1.4.1
 
 # user configuration
 ENV MATRIX_UID=991 MATRIX_GID=991
