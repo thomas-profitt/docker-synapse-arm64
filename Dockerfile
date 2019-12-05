@@ -13,9 +13,9 @@ EXPOSE 8448
 VOLUME ["/data"]
 
 # Git branch to build from
-ARG BV_SYN=release-v1.6.0
+ARG BV_SYN=release-v1.6.1
 ARG BV_TUR=master
-ARG TAG_SYN=v1.6.0
+ARG TAG_SYN=v1.6.1
 
 # user configuration
 ENV MATRIX_UID=991 MATRIX_GID=991
@@ -89,7 +89,11 @@ RUN set -ex \
     && GIT_SYN=$(git ls-remote https://github.com/matrix-org/synapse $BV_SYN | cut -f 1) \
     && echo "synapse: $BV_SYN ($GIT_SYN)" >> /synapse.version \
     && cd / \
-    && rm -rf /synapse 
+    && rm -rf /synapse \
+    ; \
+    apt-get autoremove -y $buildDeps ; \
+    apt-get autoremove -y ;\
+    rm -rf /var/lib/apt/* /var/cache/apt/*
 
 USER matrix
 ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
