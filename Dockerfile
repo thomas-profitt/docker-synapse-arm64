@@ -75,7 +75,7 @@ RUN set -ex \
     pip3 install --upgrade wheel ;\
     pip3 install --upgrade psycopg2;\
     pip3 install --upgrade python-ldap ;\
-    pip3 install git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam ;\
+    pip3 install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam" ;\
     pip3 install --upgrade lxml \
     ; \
     groupadd -r -g $MATRIX_GID matrix \
