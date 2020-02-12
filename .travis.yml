@@ -6,27 +6,28 @@ services:
 jobs:
   include:
   - stage: build docker image
+    install:
+    - export REPO="avhost/docker-matrix"    
     script:
     - echo "===== building docker image ===="
-    - docker build -t nebukadneza/docker-matrix:latest .
+    - docker build -t $REPO:latest .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
     - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e
-      REPORT_STATS=no nebukadneza/docker-matrix:latest generate
+      REPORT_STATS=no $REPO:latest generate
     - sudo sed -i -e "s/\['::1', '127.0.0.1'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - echo "===== starting up testing image ===="
     - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data
-      nebukadneza/docker-matrix:latest start
+      $REPO:latest start
     - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
     - timeout 1m bash -c 'until curl http://localhost:8008/_matrix/client/versions ; do sleep 5 ; done'
     - docker logs synapse-test
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-    - docker push nebukadneza/docker-matrix:latest
-env:
-  global:
-  - secure: TODO
-  - secure: TODO
+    - docker build -t $REPO .
+    - docker build -t $REPO:$TRAVIS_BRANCH .
+    - docker push $REPO
+    - docker push $REPO:$TRAVIS_BRANCH      
