@@ -26,7 +26,7 @@ jobs:
     - docker logs synapse-test
     after_success:
     - echo "===== pushing to docker-hub ===="
-    - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+    - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     - docker build -t $REPO .
     - docker build -t $REPO:$TRAVIS_BRANCH .
     - docker push $REPO
