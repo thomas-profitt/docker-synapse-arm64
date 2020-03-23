@@ -75,6 +75,7 @@ RUN set -ex \
     pip3 install --upgrade wheel ;\
     pip3 install --upgrade psycopg2;\
     pip3 install --upgrade python-ldap ;\
+    pip3 install --upgrade twisted==20.3.0 ;\
     pip3 install -e "git+https://github.com/t2bot/synapse-simple-antispam#egg=synapse-simple-antispam" ;\
     pip3 install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam" ;\
     pip3 install --upgrade lxml \
