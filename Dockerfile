@@ -46,7 +46,7 @@ RUN set -ex \
         libtool \
         libxml2-dev \
         libxslt1-dev \
-        linux-headers-amd64 \
+        linux-headers-arm64 \
         make \
         zlib1g-dev \
         python3-dev \
@@ -98,4 +98,4 @@ RUN set -ex \
     rm -rf /var/lib/apt/* /var/cache/apt/*
 
 USER matrix
-ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+ENV LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libjemalloc.so.2"
