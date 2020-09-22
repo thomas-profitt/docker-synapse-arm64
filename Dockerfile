@@ -1,7 +1,4 @@
-# target architecture
-ARG ARCH=amd64
-
-FROM ${ARCH}/debian:buster-slim
+FROM debian:buster-slim
 
 # Maintainer
 MAINTAINER Andreas Peters <support@aventer.biz>
@@ -22,6 +19,9 @@ ARG TAG_SYN=v1.19.3
 
 # user configuration
 ENV MATRIX_UID=991 MATRIX_GID=991
+
+# target architecture
+ARG ARCH=amd64
 
 # use --build-arg REBUILD=$(date) to invalidate the cache and upgrade all
 # packages
