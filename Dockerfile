@@ -1,3 +1,4 @@
+# target architecture
 FROM debian:buster-slim
 
 # Maintainer
@@ -20,13 +21,12 @@ ARG TAG_SYN=v1.20.0
 # user configuration
 ENV MATRIX_UID=991 MATRIX_GID=991
 
-# target architecture
-ARG ARCH=amd64
-
 # use --build-arg REBUILD=$(date) to invalidate the cache and upgrade all
 # packages
 ARG REBUILD=1
 RUN set -ex \
+    && export ARCH=`dpkg --print-architecture` \
+    && export MARCH=`uname -m` \
     && mkdir /uploads \
     && export DEBIAN_FRONTEND=noninteractive \
     && mkdir -p /var/cache/apt/archives \
@@ -49,7 +49,7 @@ RUN set -ex \
         libtool \
         libxml2-dev \
         libxslt1-dev \
-        linux-headers-${ARCH} \
+        linux-headers-$ARCH \
         make \
         zlib1g-dev \
         python3-dev \
@@ -96,13 +96,12 @@ RUN set -ex \
     && echo "synapse: $BV_SYN ($GIT_SYN)" >> /synapse.version \
     && cd / \
     && rm -rf /synapse \
-    && mkdir -p /usr/lib/${ARCH}-linux-gnu \
-    && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so.2 /usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2 \
     ; \
     apt-get autoremove -y $buildDeps ; \
     apt-get autoremove -y ;\
+    ln -s /usr/lib/${MARCH}-linux-gnu/libjemalloc.so.2 /usr/lib/libjemalloc.so.2; \
     rm -rf /var/lib/apt/* /var/cache/apt/*
 
 USER matrix
 
-ENV LD_PRELOAD="/usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2"
+ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"

@@ -1,41 +1,31 @@
 language: generic
 sudo: required
 dist: bionic
-arch:
-  - amd64
 services:
 - docker
 jobs:
   include:
   - stage: build docker image
-    before_install:
-      - curl -fsSL https://get.docker.com | sh
-      - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
-      - mkdir -p $HOME/.docker
-      - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
-      - sudo service docker start
     install:
-      - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - docker buildx create --name xbuilder --use
-      - export REPO="avhost/docker-matrix"
+    - export REPO="avhost/docker-matrix"    
     script:
-    - echo "===== building test docker image ===="
-    - docker build -t $REPO:dev .
+    - echo "===== building docker image ===="
+    - docker build -t $REPO:latest .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
     - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e
-      REPORT_STATS=no $REPO:dev generate
+      REPORT_STATS=no $REPO:latest generate
     - sudo sed -i -e "s/\['::1', '127.0.0.1'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - echo "===== starting up testing image ===="
     - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data
-      $REPO:dev start
+      $REPO:latest start
     - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
       #    - timeout 1m bash -c 'until curl http://localhost:8008/_matrix/client/versions ; do sleep 5 ; done'
     - docker logs synapse-test
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker buildx build --progress plain --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH --push .
-    - docker push $REPO:$TRAVIS_BRANCH
+    - docker buildx build --platform linux/amd64,linux/ppc64le -t $REPO .
+    - docker tag $REPO $REPO:$TRAVIS_BRANCH; docker push $REPO:$TRAVIS_BRANCH ; fi
