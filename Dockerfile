@@ -1,4 +1,7 @@
-FROM debian:buster-slim
+# target architecture
+ARG ARCH=amd64
+
+FROM ${ARCH}/debian:buster-slim
 
 # Maintainer
 MAINTAINER Andreas Peters <support@aventer.biz>
@@ -16,9 +19,6 @@ VOLUME ["/data"]
 ARG BV_SYN=release-v1.19.3
 ARG BV_TUR=master
 ARG TAG_SYN=v1.19.3
-
-# target architecture
-ARG ARCH=amd64
 
 # user configuration
 ENV MATRIX_UID=991 MATRIX_GID=991
