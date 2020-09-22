@@ -30,12 +30,12 @@ jobs:
     - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - echo "===== starting up testing image ===="
     - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data
-      $REPO:latest start
+      $REPO:dev start
     - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
       #    - timeout 1m bash -c 'until curl http://localhost:8008/_matrix/client/versions ; do sleep 5 ; done'
     - docker logs synapse-test
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker buildx build --platform linux/amd64,linux/powerpc64le -t $REPO:$TRAVIS_BRANCH .
+    - docker buildx build --progress plain --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH --push .
     - docker push $REPO:$TRAVIS_BRANCH
