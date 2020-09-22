@@ -3,31 +3,29 @@ sudo: required
 dist: bionic
 arch:
   - amd64
-  - powerpc64le
 services:
 - docker
 jobs:
   include:
   - stage: build docker image
     before_install:
-      - sudo rm -rf /var/lib/apt/lists/*
-      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-      - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
-      - sudo apt-get update
-      - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-      - mkdir -vp ~/.docker/cli-plugins/
-      - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
-      - chmod a+x ~/.docker/cli-plugins/docker-buildx  
+      - curl -fsSL https://get.docker.com | sh
+      - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
+      - mkdir -p $HOME/.docker
+      - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
+      - sudo service docker start
     install:
-    - export REPO="avhost/docker-matrix"
+      - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - docker buildx create --name xbuilder --use
+      - export REPO="avhost/docker-matrix"
     script:
-    - echo "===== building docker image ===="
-    - docker build -t $REPO:latest .
+    - echo "===== building test docker image ===="
+    - docker build -t $REPO:dev .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
     - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e
-      REPORT_STATS=no $REPO:latest generate
+      REPORT_STATS=no $REPO:dev generate
     - sudo sed -i -e "s/\['::1', '127.0.0.1'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - echo "===== starting up testing image ===="
