@@ -17,6 +17,9 @@ ARG BV_SYN=release-v1.19.3
 ARG BV_TUR=master
 ARG TAG_SYN=v1.19.3
 
+# target architecture
+ARG ARCH=amd64
+
 # user configuration
 ENV MATRIX_UID=991 MATRIX_GID=991
 
@@ -31,7 +34,7 @@ RUN set -ex \
     && apt-get clean \
     && apt-get update -y -q --fix-missing\
     && apt-get upgrade -y \
-    && buildDeps=' \
+    && buildDeps=" \
         file \
         gcc \
         git \
@@ -46,13 +49,13 @@ RUN set -ex \
         libtool \
         libxml2-dev \
         libxslt1-dev \
-        linux-headers-amd64 \
+        linux-headers-${ARCH} \
         make \
         zlib1g-dev \
         python3-dev \
         python3-setuptools \
         libpq-dev \
-    ' \
+    " \
     && apt-get install -y --no-install-recommends \
         $buildDeps \
         bash \
@@ -99,4 +102,4 @@ RUN set -ex \
     rm -rf /var/lib/apt/* /var/cache/apt/*
 
 USER matrix
-ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+ENV LD_PRELOAD="/usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2"
