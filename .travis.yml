@@ -9,8 +9,17 @@ services:
 jobs:
   include:
   - stage: build docker image
+    before_install:
+      - sudo rm -rf /var/lib/apt/lists/*
+      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+      - sudo apt-get update
+      - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+      - mkdir -vp ~/.docker/cli-plugins/
+      - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+      - chmod a+x ~/.docker/cli-plugins/docker-buildx  
     install:
-    - export REPO="avhost/docker-matrix"    
+    - export REPO="avhost/docker-matrix"
     script:
     - echo "===== building docker image ===="
     - docker build -t $REPO:latest .
@@ -30,5 +39,5 @@ jobs:
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker build -t $REPO:$TRAVIS_BRANCH --build-arg ARCH=$TRAVIS_CPU_ARCH .
+    - docker buildx build --platform linux/amd64,linux/powerpc64le -t $REPO:$TRAVIS_BRANCH .
     - docker push $REPO:$TRAVIS_BRANCH
