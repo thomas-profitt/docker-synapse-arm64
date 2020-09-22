@@ -29,5 +29,7 @@ jobs:
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     - docker build -t $REPO .
     - docker push $REPO
-    - docker tag $REPO $REPO:$TRAVIS_BRANCH      
-    - docker push $REPO:$TRAVIS_BRANCH      
+    - docker tag $REPO $REPO:$TRAVIS_BRANCH
+    - docker tag $REPO $REPO:$TRAVIS_TAG
+    - docker push $REPO:$TRAVIS_BRANCH
+    - docker push $REPO:$TRAVIS_TAG
