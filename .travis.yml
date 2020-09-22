@@ -30,6 +30,5 @@ jobs:
     - docker build -t $REPO .
     - docker push $REPO
     - docker tag $REPO $REPO:$TRAVIS_BRANCH
-    - docker tag $REPO $REPO:$TRAVIS_TAG
-    - docker push $REPO:$TRAVIS_BRANCH
-    - docker push $REPO:$TRAVIS_TAG
+    - if [ -z "$TRAVIS_TAG" ]; then docker tag $REPO $REPO:$TRAVIS_TAG; docker push $REPO:$TRAVIS_TAG ; fi
+    - if [ -z "$TRAVIS_BRANCH" ]; then docker tag $REPO $REPO:$TRAVIS_BRANCH; docker push $REPO:$TRAVIS_BRANCH ; fi
