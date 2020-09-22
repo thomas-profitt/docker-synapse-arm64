@@ -96,10 +96,13 @@ RUN set -ex \
     && echo "synapse: $BV_SYN ($GIT_SYN)" >> /synapse.version \
     && cd / \
     && rm -rf /synapse \
+    && mkdir -p /usr/lib/${ARCH}-linux-gnu \
+    && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so.2 /usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2 \
     ; \
     apt-get autoremove -y $buildDeps ; \
     apt-get autoremove -y ;\
     rm -rf /var/lib/apt/* /var/cache/apt/*
 
 USER matrix
+
 ENV LD_PRELOAD="/usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2"
