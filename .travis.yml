@@ -19,7 +19,7 @@ jobs:
     - export REPO="avhost/docker-matrix"    
     script:
     - echo "===== building docker image ===="
-    - docker buildx build --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH .
+    - docker buildx build --platform linux/amd64 -t $REPO:$TRAVIS_BRANCH .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
