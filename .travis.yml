@@ -9,7 +9,9 @@ services:
 jobs:
   include:
   - stage: build docker image amd64
-    arch: amd64
+    arch: 
+      - amd64
+      - ppc64le
     install:
     - export REPO="avhost/docker-matrix"
     script:
