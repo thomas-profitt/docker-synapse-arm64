@@ -7,20 +7,10 @@ services:
 jobs:
   include:
   - stage: build docker image
-    before_install:
-    - curl -fsSL https://get.docker.com | sh
-    - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
-    - mkdir -p $HOME/.docker
-    - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
-    - sudo service docker start
-    install:
-    - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-    - docker buildx create --name xbuilder --use
-    - docker buildx ls
-    - export REPO="avhost/docker-matrix"
+    - export REPO="avhost/docker-matrix"    
     script:
     - echo "===== building docker image ===="
-    - docker build -t $REPO:dev .
+    - docker build --build-arg BASE_ARCH=amd64 -t $REPO:dev .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
@@ -35,5 +25,10 @@ jobs:
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker buildx build --platform linux/amd64 -t $REPO:$TRAVIS_BRANCH --push .
     - docker images
+    - docker build --build-arg BASE_ARCH=amd64 -t $REPO:amd64-$TRAVIS_BRANCH .
+    - docker manifest create $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH
+    - docker manifest annotate --arch amd64 $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH
+    - docker images
+    - docker push $REPO:$TRAVIS_BRANCH
+
