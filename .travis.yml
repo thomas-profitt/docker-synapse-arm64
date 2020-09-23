@@ -7,7 +7,8 @@ services:
 jobs:
   include:
   - stage: build docker image
-    - export REPO="avhost/docker-matrix"    
+    install:
+    - export REPO="avhost/docker-matrix"
     script:
     - echo "===== building docker image ===="
     - docker build --build-arg BASE_ARCH=amd64 -t $REPO:dev .
@@ -20,7 +21,6 @@ jobs:
     - echo "===== starting up testing image ===="
     - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data $REPO:dev start
     - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
-      #    - timeout 1m bash -c 'until curl http://localhost:8008/_matrix/client/versions ; do sleep 5 ; done'
     - docker logs synapse-test
     after_success:
     - echo "===== pushing to docker-hub ===="
@@ -28,7 +28,7 @@ jobs:
     - docker images
     - docker build --build-arg BASE_ARCH=amd64 -t $REPO:amd64-$TRAVIS_BRANCH .
     - docker manifest create $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH
-    - docker manifest annotate --arch amd64 $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH
+    - docker manifest annotate --arch amd64 $REPO:$TRAVIS_BRANCH
     - docker images
     - docker push $REPO:$TRAVIS_BRANCH
 
