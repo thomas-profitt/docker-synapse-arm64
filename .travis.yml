@@ -1,12 +1,12 @@
 language: generic
 sudo: required
 dist: bionic
-arch:
-  - amd64
-  - ppc64le
 services:
 - docker
 jobs:
+  arch:
+    - amd64
+    - ppc64le  
   include:
   - stage: build docker image
     before_install:
