@@ -1,13 +1,11 @@
 language: generic
 dist: bionic
+os: linux
+arch: amd64
 services:
 - docker
 jobs:
   include:
-  - os: linux
-    arch: amd64
-  - os: linux
-    arch: ppc64le
   - stage: build docker image
     before_install:
     - curl -fsSL https://get.docker.com | sh
@@ -21,7 +19,7 @@ jobs:
     - export REPO="avhost/docker-matrix"    
     script:
     - echo "===== building docker image ===="
-    - docker build -t $REPO:dev .
+    - docker buildx build --platform linux/amd64 -t $REPO:dev .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
@@ -39,3 +37,4 @@ jobs:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     - docker buildx build --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH --push .
+    - docker images
