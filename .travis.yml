@@ -14,7 +14,7 @@ jobs:
     - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
     - sudo service docker start
     install:
-      docker run --rm --privileged multiarch/qemu-user-static:register --reset    
+    - docker run --rm --privileged multiarch/qemu-user-static:register --reset    
     - docker buildx create --name xbuilder --use
     - export REPO="avhost/docker-matrix"    
     script:
