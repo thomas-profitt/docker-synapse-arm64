@@ -36,7 +36,6 @@ jobs:
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker buildx build --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH --push .
     - docker build --build-arg BASE_ARCH=amd64 -t $REPO:amd64-$TRAVIS_BRANCH .
     - docker build --build-arg BASE_ARCH=ppc64le -t $REPO:ppc64le-$TRAVIS_BRANCH .
     - docker manifest create $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH
