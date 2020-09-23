@@ -38,8 +38,4 @@ jobs:
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     - docker build --build-arg BASE_ARCH=amd64 -t $REPO:amd64-$TRAVIS_BRANCH .
     - docker build --build-arg BASE_ARCH=ppc64le -t $REPO:ppc64le-$TRAVIS_BRANCH .
-    - docker manifest create $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH
-    - docker manifest annotate --arch amd64 $REPO:$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH
-    - docker manifest annotate --arch ppc64le $REPO:$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH    
     - docker images
-    - docker push $REPO:$TRAVIS_BRANCH
