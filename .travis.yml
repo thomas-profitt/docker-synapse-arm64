@@ -30,7 +30,9 @@ jobs:
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin    
     - docker tag $REPO:dev $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
     - docker images
-    - docker push $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+    - docker manifest create $REPO:$TRAVIS_BRANCH $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+    - docker manifest annotate --arch $TRAVIS_CPU_ARCH $REPO:$TRAVIS_BRANCH $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+    - docker push $REPO:$TRAVIS_BRANCH
   - stage: build docker image ppc64le
     arch: ppc64le
     install:
@@ -53,6 +55,7 @@ jobs:
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin    
     - docker tag $REPO:dev $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
     - docker images
-    - docker push $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+    - docker manifest annotate --arch $TRAVIS_CPU_ARCH $REPO:$TRAVIS_BRANCH $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+    - docker push $REPO:$TRAVIS_BRANCH
 
 
