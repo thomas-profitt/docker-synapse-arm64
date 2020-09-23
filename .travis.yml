@@ -8,7 +8,8 @@ services:
 - docker
 jobs:
   include:
-  - stage: build docker image
+  - stage: build docker image amd64
+    arch: amd64
     install:
     - export REPO="avhost/docker-matrix"
     script:
@@ -30,4 +31,28 @@ jobs:
     - docker tag $REPO:dev $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
     - docker images
     - docker push $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+  - stage: build docker image ppc64le
+    arch: ppc64le
+    install:
+    - export REPO="avhost/docker-matrix"
+    script:
+    - echo "===== building docker image ===="
+    - docker build --build-arg BASE_ARCH=$TRAVIS_CPU_ARCH -t $REPO:dev .
+    - docker images
+    - echo "===== preparing to run testing image ===="
+    - mkdir tmp && sudo chown 991:991 tmp/
+    - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e REPORT_STATS=no $REPO:dev generate
+    - sudo sed -i -e "s/\['::1', '127.0.0.1'\]/['0.0.0.0']/" tmp/homeserver.yaml
+    - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
+    - echo "===== starting up testing image ===="
+    - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data $REPO:dev start
+    - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
+    - docker logs synapse-test
+    after_success:
+    - echo "===== pushing to docker-hub ===="
+    - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin    
+    - docker tag $REPO:dev $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+    - docker images
+    - docker push $REPO:$TRAVIS_CPU_ARCH-$TRAVIS_BRANCH
+
 
