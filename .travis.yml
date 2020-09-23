@@ -16,20 +16,19 @@ jobs:
     install:
     - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
     - docker buildx create --name xbuilder --use
-    - docker buildx prune -af
     - docker buildx ls
     - export REPO="avhost/docker-matrix"
     script:
     - echo "===== building docker image ===="
-    - docker build -t $REPO:$TRAVIS_BRANCH .
+    - docker build -t $REPO:dev .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
-    - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e REPORT_STATS=no $REPO:$TRAVIS_BRANCH generate
+    - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e REPORT_STATS=no $REPO:dev generate
     - sudo sed -i -e "s/\['::1', '127.0.0.1'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - echo "===== starting up testing image ===="
-    - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data $REPO:$TRAVIS_BRANCH start
+    - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data $REPO:dev start
     - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
       #    - timeout 1m bash -c 'until curl http://localhost:8008/_matrix/client/versions ; do sleep 5 ; done'
     - docker logs synapse-test
