@@ -7,29 +7,31 @@ services:
 jobs:
   include:
   - stage: build docker image
+    before_install:
+    - curl -fsSL https://get.docker.com | sh
+    - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
+    - mkdir -p $HOME/.docker
+    - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
+    - sudo service docker start
     install:
-    - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+      docker run --rm --privileged multiarch/qemu-user-static:register --reset    
+    - docker buildx create --name xbuilder --use
     - export REPO="avhost/docker-matrix"    
     script:
     - echo "===== building docker image ===="
-    - docker build --build-arg BASE_ARCH=amd64 -t $REPO:amd64-$TRAVIS_BRANCH .
-    - docker build --build-arg BASE_ARCH=ppc64le -t $REPO:ppc64le-$TRAVIS_BRANCH .
+    - docker buildx build --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH .
     - docker images
     - echo "===== preparing to run testing image ===="
     - mkdir tmp && sudo chown 991:991 tmp/
-    - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e REPORT_STATS=no $REPO:amd64-$TRAVIS_BRANCH generate
+    - docker run --name synapse-generate -v ${PWD}/tmp/:/data --rm --user 991:991 -e SERVER_NAME=localhost -e REPORT_STATS=no $REPO:$TRAVIS_BRANCH generate
     - sudo sed -i -e "s/\['::1', '127.0.0.1'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - sudo sed -i -e "s/\['::', '0.0.0.0'\]/['0.0.0.0']/" tmp/homeserver.yaml
     - echo "===== starting up testing image ===="
-    - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data $REPO:amd64-$TRAVIS_BRANCH start
+    - docker run --name synapse-test -d --user 991:991 -p 8008:8008 -v ${PWD}/tmp/:/data $REPO:$TRAVIS_BRANCH start
     - echo "===== waiting for testing docker to reply to version endpoint (simple test) ===="
       #    - timeout 1m bash -c 'until curl http://localhost:8008/_matrix/client/versions ; do sleep 5 ; done'
     - docker logs synapse-test
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker manifest create $REPO:$TRAVIS_BRANCH $REPO:amd64-$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH
-    - docker manifest annotate --arch amd64 $REPO:$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH
-    - docker manifest annotate --arch ppc64le $REPO:$TRAVIS_BRANCH $REPO:ppc64le-$TRAVIS_BRANCH
     - docker images
-    - docker push $REPO:$TRAVIS_BRANCH
