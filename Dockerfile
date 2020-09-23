@@ -48,8 +48,7 @@ RUN set -ex \
         libssl-dev \
         libtool \
         libxml2-dev \
-        libxslt1-dev \
-        linux-headers-$ARCH \
+        libxslt1-dev \        
         make \
         zlib1g-dev \
         python3-dev \

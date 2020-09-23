@@ -1,6 +1,9 @@
 language: generic
 sudo: required
 dist: bionic
+arch:
+  - amd64
+  - ppc64le
 services:
 - docker
 jobs:
@@ -35,4 +38,4 @@ jobs:
     after_success:
     - echo "===== pushing to docker-hub ===="
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-    - docker buildx build --platform linux/amd64,linux/powerpc64le -t $REPO:$TRAVIS_BRANCH --push .
+    - docker buildx build --platform linux/amd64,linux/ppc64le -t $REPO:$TRAVIS_BRANCH --push .
