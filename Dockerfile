@@ -1,5 +1,6 @@
 # target architecture
-FROM debian:buster-slim
+ARG BASE_ARCH=amd64
+FROM ${BASE_ARCH}/debian:buster-slim
 
 # Maintainer
 MAINTAINER Andreas Peters <support@aventer.biz>
@@ -71,7 +72,6 @@ RUN set -ex \
         python3-pip \
         python3-jinja2 \
         sqlite \
-        libjemalloc2 \
         zlib1g \
     ; \
     pip3 install --upgrade wheel ;\
@@ -103,4 +103,4 @@ RUN set -ex \
 
 USER matrix
 
-ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
+#ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
