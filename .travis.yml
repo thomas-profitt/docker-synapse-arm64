@@ -61,7 +61,7 @@ jobs:
     - export REPO="avhost/docker-matrix"
     script:
     - echo "===== building docker image $TRAVIS_CPU_ARCH ===="
-    - docker build --build-arg BASE_ARCH=arm64/v8 -t $REPO:dev .
+    - docker build --build-arg BASE_ARCH=arm64v8 -t $REPO:dev .
     - docker images
     - echo "===== preparing to run testing image $TRAVIS_CPU_ARCH ===="
     - mkdir tmp && sudo chown 991:991 tmp/
