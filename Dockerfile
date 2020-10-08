@@ -1,7 +1,6 @@
 # target architecture
-ARG ARCH=amd64
-
-FROM ${ARCH}/debian:buster-slim
+ARG BASE_ARCH=amd64
+FROM ${BASE_ARCH}/debian:buster-slim
 
 # Maintainer
 MAINTAINER Andreas Peters <support@aventer.biz>
@@ -27,6 +26,8 @@ ENV MATRIX_UID=991 MATRIX_GID=991
 # packages
 ARG REBUILD=1
 RUN set -ex \
+    && export ARCH=`dpkg --print-architecture` \
+    && export MARCH=`uname -m` \
     && mkdir /uploads \
     && export DEBIAN_FRONTEND=noninteractive \
     && mkdir -p /var/cache/apt/archives \
@@ -48,8 +49,7 @@ RUN set -ex \
         libssl-dev \
         libtool \
         libxml2-dev \
-        libxslt1-dev \
-        linux-headers-${ARCH} \
+        libxslt1-dev \        
         make \
         zlib1g-dev \
         python3-dev \
@@ -72,7 +72,6 @@ RUN set -ex \
         python3-pip \
         python3-jinja2 \
         sqlite \
-        libjemalloc2 \
         zlib1g \
     ; \
     pip3 install --upgrade wheel ;\
@@ -96,13 +95,12 @@ RUN set -ex \
     && echo "synapse: $BV_SYN ($GIT_SYN)" >> /synapse.version \
     && cd / \
     && rm -rf /synapse \
-    && mkdir -p /usr/lib/${ARCH}-linux-gnu \
-    && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so.2 /usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2 \
     ; \
     apt-get autoremove -y $buildDeps ; \
     apt-get autoremove -y ;\
+    ln -s /usr/lib/${MARCH}-linux-gnu/libjemalloc.so.2 /usr/lib/libjemalloc.so.2; \
     rm -rf /var/lib/apt/* /var/cache/apt/*
 
 USER matrix
 
-ENV LD_PRELOAD="/usr/lib/${ARCH}-linux-gnu/libjemalloc.so.2"
+#ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
