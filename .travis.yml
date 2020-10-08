@@ -91,5 +91,3 @@ jobs:
     - docker manifest create $REPO:$TRAVIS_BRANCH $REPO\:amd64-$TRAVIS_BRANCH $REPO\:ppc64le-$TRAVIS_BRANCH $REPO\:arm64-$TRAVIS_BRANCH
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     - docker manifest push $REPO:$TRAVIS_BRANCH
-
-
