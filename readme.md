@@ -7,29 +7,29 @@
 
 ## Notice
 
-With v0.99.5 we publish some changes that can breake the backward compatibility.
+With v0.99.5 we publish some changes that can break the backward compatibility.
 
-We change to python3. We could not test everything. Please come into our chat and/or open a issue on github. 
+We change to python3. We could not test everything. Please come into our chat and/or open an issue on GitHub. 
 
-Please make sure to use our tagged docker images and not the latest one. Specifically in a production environment you should never use :latest as that the version can be broken.
+Please make sure to use our tagged docker images and not the latest one. Specifically, in a production environment you should never use `:latest` as that the version can be broken.
 
 ## Creating Issues and Pull request
 
-We are working with the repository at "https://github.com/AVENTER-UG/docker-matrix". If you want to open issues or create pull request, please use that repository.
+We are working with the repository at "https://github.com/AVENTER-UG/docker-matrix". If you want to open issues or create a pull request, please use that repository.
 
 ## Security
 
-We verify the docker layers of our image automaticly with clair. Matrix is not a part of the vulnerability scan, which  means clair will only find vulnerabilities that are part of the OS (operating system).
+We verify the docker layers of our image automatically with Clair. Matrix is not a part of the vulnerability scan, which  means Clair will only find vulnerabilities that are part of the OS (operating system).
 
 ## Introduction
 
 Dockerfile for installation of [matrix] open federated Instant Messaging and
 VoIP communication server.
 
-The riot.im web client has now his own docker file at [github].
+The riot.im web client has now his own docker file on [GitHub].
 
 [matrix]: https://matrix.org
-[github]: https://github.com/AVENTER-UG/matrix-riot-docker
+[GitHub]: https://github.com/AVENTER-UG/matrix-riot-docker
 
 ## Contribution
 
@@ -42,12 +42,12 @@ To support this Dockerimage please pledge via [liberapay].
 
 ## Configuration
 
-To configure run the image with "generate" as argument. You have to setup the
+To configure, run the image with "generate" as argument. You have to set up the
 server domain and a `/data`-directory. After this you have to edit the
 generated homeserver.yaml file.
 
-Please read the synapse [readme file] about configuration settings, 
-there is also an [example setup] available to read.
+Please read the synapse [readme file] about configuration settings. 
+There is also an [example setup] available to read.
 
 [readme file]: https://github.com/matrix-org/synapse/blob/master/README.rst
 [example setup]: https://github.com/AVENTER-UG/docker-matrix/blob/master/Example.configs.md
@@ -87,7 +87,7 @@ For TURN (using the server as a relay) you also need to forward this portrange:
 You may also have to set the external ip of the server in turnserver.conf which is located in the `/data` volume:  
 `external-ip=XX.XX.XX.XX`
 
-In case you don't want to expose the whole port range on udp you can change the portrange in turnserver.conf:  
+In case you don't want to expose the whole port range on udp you can change the port range in turnserver.conf:  
 `min-port=XXXXX`  
 `max-port=XXXXX`  
 
@@ -132,7 +132,7 @@ build` command.
 
 To get a hint about new options etc you can do a diff between your configured
 homeserver.yaml and a newly created config file. Call your image with `diff` as
-argument.
+an argument.
 
 
 ```
@@ -150,7 +150,7 @@ $ docker run --rm -ti -v /tmp/data:/data avhost/docker-matrix:<VERSION> diff
 [...]
 ```
 
-For generating of this output its `diff` from `busybox` used. The used diff
+For generating this output, the `diff` from `busybox` is used. The used diff
 parameters can be changed through `DIFFPARAMS` environment variable. The
 default is `Naur`.
 
